@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name = "Outtake Test", group = "Test")
 public class OuttakeTest extends LinearOpMode {
-    private static final double MOTOR_POWER = 0.30;
+    private static final double MOTOR_POWER = 0.55;
 
     @Override
     public void runOpMode() {

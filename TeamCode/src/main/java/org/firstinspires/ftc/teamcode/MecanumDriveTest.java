@@ -4,13 +4,15 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp(name = "Mecanum Drive Test", group = "StarterBot")
+@TeleOp(name = "Mecanum + Outtake", group = "StarterBot")
 public class MecanumDriveTest extends OpMode {
 
     private DcMotor leftFrontDrive;
     private DcMotor rightFrontDrive;
     private DcMotor leftBackDrive;
     private DcMotor rightBackDrive;
+    private DcMotor outtake;
+    private static final double OUTTAKE_POWER = 0.55;
 
     @Override
     public void init() {
@@ -48,7 +50,15 @@ public class MecanumDriveTest extends OpMode {
         rightBackDrive.setZeroPowerBehavior(
                 DcMotor.ZeroPowerBehavior.BRAKE);
 
+        // Configure the motor on its hub as "outtake".
+        outtake = hardwareMap.get(DcMotor.class, "outtake");
+        outtake.setPower(0);
+        outtake.setDirection(DcMotor.Direction.FORWARD);
+        outtake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        outtake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         telemetry.addData("Status", "Initialized");
+        telemetry.addLine("Sticks: drive | Hold A: outtake | Hold B: reverse");
         telemetry.update();
     }
 
@@ -89,7 +99,17 @@ public class MecanumDriveTest extends OpMode {
         leftBackDrive.setPower(leftBackPower * speedLimit);
         rightBackDrive.setPower(rightBackPower * speedLimit);
 
+        // Release both buttons, or press both together, to stop the outtake.
+        double outtakePower = 0;
+        if (gamepad1.a && !gamepad1.b) {
+            outtakePower = OUTTAKE_POWER;
+        } else if (gamepad1.b && !gamepad1.a) {
+            outtakePower = -OUTTAKE_POWER;
+        }
+        outtake.setPower(outtakePower);
+
         // Telemetry
+        telemetry.addData("Outtake power", "%.2f", outtakePower);
         telemetry.addData("Forward", forward);
         telemetry.addData("Strafe", strafe);
         telemetry.addData("Rotate", rotate);
@@ -102,5 +122,6 @@ public class MecanumDriveTest extends OpMode {
         rightFrontDrive.setPower(0);
         leftBackDrive.setPower(0);
         rightBackDrive.setPower(0);
+        outtake.setPower(0);
     }
 }
